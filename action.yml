@@ -465,7 +465,18 @@ runs:
                 # Append the date to the zip filename
                 cd AnyKernel3
                 zip -r9 Anykernel3-flasher-$DATE.zip * -x README Anykernel3-flasher-$DATE.zip
-                mv Anykernel3-flasher-$DATE.zip ../../../build/ -v
+                echo "Done zipping up"
+                echo "Current directory"
+                pwd
+                if [ -d "../../../build" ]; then
+                    echo "Directory exists.";
+                    ls -l "../../../build"
+                else
+                      echo "Directory does not exist.";
+                fi
+                cp Anykernel3-flasher-$DATE.zip ../../../build -rv
+                ls -l "../../../build"
+                echo "Current directory"
                 pwd
             fi
             echo "::endgroup::"
