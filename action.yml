@@ -461,7 +461,7 @@ runs:
             else
                 # Get the current date in YYYYMMDD format
                 DATE=$(date +%Y%m%d)
-                FINAL_ZIP_VALUE=$(grep FINAL_KERNEL_ZIP= build.sh | cut -d= -f2)
+                FINAL_ZIP_VALUE=$(grep FINAL_KERNEL_ZIP= build.sh | cut -d= -f2 | basename -s .zip)
                 ZIP_FILE_NAME="$FINAL_ZIP_VALUE-$DATE.zip" 
                 echo "ZIP_FILE_NAME=$ZIP_FILE_NAME" >> $GITHUB_ENV
                 cd AnyKernel3
