@@ -441,6 +441,7 @@ runs:
             echo "::endgroup::"
          else
             echo "::group:: Packaging Anykernel3 flasher"
+            pwd
             if [ ! -d "AnyKernel3" ]; then
                 if [ ! -z ${{ inputs.anykernel3-url }} ]; then
                     git clone ${{ inputs.anykernel3-url }} AnyKernel3
@@ -464,10 +465,16 @@ runs:
                 DATE=$(date +%Y%m%d)
                 # Append the date to the zip filename
                 cd AnyKernel3
+                echo "AnyKernel3 directory"
                 pwd
                 zip -r9 Anykernel3-flasher-$DATE.zip * -x README Anykernel3-flasher-$DATE.zip
+                echo "Contents of AnyKernel3 directory"
+                ls
                 cd ..
+                echo "Kernel root directory"
                 pwd
+                echo "Contents of Kernel root directory"
+                ls
                 mv Anykernel3/Anykernel3-flasher-$DATE.zip ../../build/ -v
                 pwd
             fi
