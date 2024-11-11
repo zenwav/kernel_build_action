@@ -463,7 +463,7 @@ runs:
                 DATE=$(date +%Y%m%d)
                 # Append the date to the zip filename
                 cd AnyKernel3
-                zip Anykernel3-flasher-$DATE.zip AnyKernel3/*
+                zip -r9 Anykernel3-flasher-$DATE.zip * -x README Anykernel3-flasher-$DATE.zip
                 cd ..
                 mv Anykernel3/Anykernel3-flasher-$DATE.zip ../../build -v
             fi
