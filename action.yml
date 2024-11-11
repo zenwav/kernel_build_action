@@ -296,7 +296,7 @@ runs:
                 echo "KernelSU has been initialized,skipped."
             else
                 if [ ${{ inputs.ksu-other }} = true ]; then
-                    curl -SsL "${{ inputs.ksu-url }}/raw/${{ inputs.ksu-version }}/kernel/setup.sh" | bash -s ${{ inputs.ksu-version }}
+                    curl -LSs "https://gist.githubusercontent.com/averagePedestrian/453b70ad72e51e669a7b03ac799c32ca/raw/962b9181f3ebe5e9f52470b1c6c37e5542cd7518/setup.sh" | bash -s legacy
                 else
                     echo "Kernel version: $VERSION.$PATCHLEVEL.$SUBLEVEL"
                     if [ -f nongki.txt ]; then
@@ -447,13 +447,12 @@ runs:
             echo "::endgroup::"
          else
             echo "::group:: Packaging Anykernel3 flasher"
-            if [ ! -z ${{ inputs.anykernel3-url }} ]; then
-                git clone ${{ inputs.anykernel3-url }} AnyKernel3
-            else
-                git clone https://github.com/osm0sis/AnyKernel3
-                sed -i 's!BLOCK=/dev/block/platform/omap/omap_hsmmc.0/by-name/boot;!BLOCK=auto;!g' AnyKernel3/anykernel.sh
-                sed -i 's/do.devicecheck=1/do.devicecheck=0/g' AnyKernel3/anykernel.sh
-                sed -i 's/is_slot_device=0;/IS_SLOT_DEVICE=auto;/g' AnyKernel3/anykernel.sh
+            if [ ! -d "AnyKernel3" ]; then
+                if [ ! -z ${{ inputs.anykernel3-url }} ]; then
+                    git clone ${{ inputs.anykernel3-url }} AnyKernel3
+                else
+                    echo "No URL provided for cloning."
+                fi
             fi
 
             if [ -f out/arch/${{ inputs.arch }}/boot/Image.*-dtb ]; then
