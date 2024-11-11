@@ -451,8 +451,6 @@ runs:
                     echo "No URL provided for cloning."
                 fi
             fi
-            echo "Kernel root directory"
-            ls
             if [ -f out/arch/${{ inputs.arch }}/boot/Image.gz-dtb ]; then
                 cp out/arch/${{ inputs.arch }}/boot/Image.gz-dtb AnyKernel3/ -rv
             fi
@@ -465,31 +463,13 @@ runs:
             else
                 # Get the current date in YYYYMMDD format
                 DATE=$(date +%Y%m%d)
-                # Append the date to the zip filename
+                FINAL_ZIP_VALUE=$(grep FINAL_KERNEL_ZIP= build.sh | cut -d= -f2)
                 cd AnyKernel3
-                zip -r9 Anykernel3-flasher-$DATE.zip * -x README Anykernel3-flasher-$DATE.zip
+                # Append the date to the zip filename and create zip
+                zip -r9 $FINAL_ZIP_VALUE-$DATE.zip * -x README $FINAL_ZIP_VALUE-$DATE.zip
                 echo "Done zipping up"
-                echo "Current directory"
-                pwd
-                if [ -f "Anykernel3-flasher-$DATE.zip" ]; then
-                    echo "Anykernel 3 flash zip exists";
-                fi
-                mv Anykernel3-flasher-$DATE.zip ${{ github.workspace }}/
+                mv $FINAL_ZIP_VALUE-$DATE.zip ${{ github.workspace }}/
                 cd ${{ github.workspace }}/
-                echo "Current directory"
-                pwd
-                echo "contents of /home"
-                ls -l /home
-                echo "contents of /home/runner/work"
-                ls -l /home/runner/work
-                echo "contents of /home/runner/work/InfiniR_kernel_alioth"
-                ls -l /home/runner/work/InfiniR_kernel_alioth
-                echo "contents of /home/runner/work/InfiniR_kernel_alioth/InfiniR_kernel_alioth"
-                ls -l /home/runner/work/InfiniR_kernel_alioth/InfiniR_kernel_alioth
-                echo "contents of /home/runner/work/InfiniR_kernel_alioth/InfiniR_kernel_alioth/kernel"
-                ls -l /home/runner/work/InfiniR_kernel_alioth/InfiniR_kernel_alioth/kernel
-                echo "contents of /home/runner/work/InfiniR_kernel_alioth/InfiniR_kernel_alioth/kernel/InfiniR_kernel_alioth"
-                ls -l /home/runner/work/InfiniR_kernel_alioth/InfiniR_kernel_alioth/kernel/InfiniR_kernel_alioth
             fi
             echo "::endgroup::"
          fi
@@ -520,7 +500,7 @@ runs:
       with:
         name: Last CI build kernel
         tag_name: last-ci
-        files: ${{ github.workspace }}/Anykernel3-flasher-*.zip
+        files: ${{ github.workspace }}/$FINAL_ZIP_VALUE-*.zip
         make_latest: true
         body: |
             config: ${{ inputs.config }}
