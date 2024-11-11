@@ -498,13 +498,13 @@ runs:
                 # Get the current date in YYYYMMDD format
                 DATE=$(date +%Y%m%d)
                 FINAL_ZIP_VALUE=$(grep FINAL_KERNEL_ZIP= build.sh | cut -d= -f2 | sed 's/\.zip$//')
-                ZIP_FILE_NAME="$FINAL_ZIP_VALUE-$DATE.zip" 
+                ZIP_FILE_NAME="$FINAL_ZIP_VALUE-susfs1.4.2-$DATE.zip" 
                 echo "ZIP_FILE_NAME=$ZIP_FILE_NAME" >> $GITHUB_ENV
                 cd AnyKernel3
                 # Append the date to the zip filename and create zip
-                zip -r9 $FINAL_ZIP_VALUE-$DATE.zip * -x README $FINAL_ZIP_VALUE-$DATE.zip
+                zip -r9 $FINAL_ZIP_VALUE-susfs1.4.2-$DATE.zip * -x README $FINAL_ZIP_VALUE-susfs1.4.2-$DATE.zip
                 echo "Done zipping up"
-                mv $FINAL_ZIP_VALUE-$DATE.zip ${{ github.workspace }}/
+                mv $FINAL_ZIP_VALUE-susfs1.4.2-$DATE.zip ${{ github.workspace }}/
                 cd ${{ github.workspace }}/
             fi
             echo "::endgroup::"
