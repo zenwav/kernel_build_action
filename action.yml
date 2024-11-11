@@ -500,7 +500,7 @@ runs:
       with:
         name: Last CI build kernel
         tag_name: last-ci
-        files: ${{ github.workspace }}/$FINAL_ZIP_VALUE-*.zip
+        files: ${{ github.workspace }}/${FINAL_ZIP_VALUE}-*.zip
         make_latest: true
         body: |
             config: ${{ inputs.config }}
