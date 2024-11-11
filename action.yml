@@ -279,10 +279,6 @@ runs:
              echo "::endgroup::"
          fi
 
-         echo "Home directory"
-         echo "$HOME"
-         echo "Contents of home"
-         ls -l "$HOME"
          cd kernel/${{ inputs.kernel-dir }}
          function version_gt() { test "$(echo -e "$1\n$2" | sort -V | tail -n1)" == "$1"; }
          VERSION=$(grep -E '^VERSION = ' Makefile | awk '{print $3}')
@@ -470,24 +466,28 @@ runs:
                 # Get the current date in YYYYMMDD format
                 DATE=$(date +%Y%m%d)
                 # Append the date to the zip filename
-                cd AnyKernel3
-                zip -r9 Anykernel3-flasher-$DATE.zip * -x README Anykernel3-flasher-$DATE.zip
+                zip Anykernel3-flasher-$DATE.zip AnyKernel3/*
                 echo "Done zipping up"
                 echo "Current directory"
                 pwd
-                if [ -d "../../../build" ]; then
-                    echo "Directory exists.";
-                    ls -l "../../../build"
-                else
-                      echo "Directory does not exist.";
-                fi
-                if [ -d "Anykernel3-flasher-$DATE.zip" ]; then
+                if [ -f "Anykernel3-flasher-$DATE.zip" ]; then
                     echo "Anykernel 3 flash zip exists";
                 fi
-                cp Anykernel3-flasher-$DATE.zip ../../../build -rv
-                ls -l "../../../build"
+                mv Anykernel3-flasher-$DATE.zip ../../build -v
                 echo "Current directory"
                 pwd
+                echo "contents of /home"
+                ls -l /home
+                echo "contents of /home/runner/work"
+                ls -l /home/runner/work
+                echo "contents of /home/runner/work/InfiniR_kernel_alioth"
+                ls -l /home/runner/work/InfiniR_kernel_alioth
+                echo "contents of /home/runner/work/InfiniR_kernel_alioth/InfiniR_kernel_alioth"
+                ls -l /home/runner/work/InfiniR_kernel_alioth/InfiniR_kernel_alioth
+                echo "contents of /home/runner/work/InfiniR_kernel_alioth/InfiniR_kernel_alioth/kernel"
+                ls -l /home/runner/work/InfiniR_kernel_alioth/InfiniR_kernel_alioth/kernel
+                echo "contents of /home/runner/work/InfiniR_kernel_alioth/InfiniR_kernel_alioth/kernel/InfiniR_kernel_alioth"
+                ls -l /home/runner/work/InfiniR_kernel_alioth/InfiniR_kernel_alioth/kernel/InfiniR_kernel_alioth
             fi
             echo "::endgroup::"
          fi
