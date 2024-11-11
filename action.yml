@@ -473,6 +473,7 @@ runs:
                 if [ -f "Anykernel3-flasher-$DATE.zip" ]; then
                     echo "Anykernel 3 flash zip exists";
                 fi
+                mv Anykernel3-flasher-$DATE.zip ../../ -v
                 echo "Current directory"
                 pwd
                 echo "contents of /home"
@@ -517,7 +518,7 @@ runs:
       with:
         name: Last CI build kernel
         tag_name: last-ci
-        files: build/*
+        files: Anykernel3-flasher-$DATE.zip
         make_latest: true
         body: |
             config: ${{ inputs.config }}
