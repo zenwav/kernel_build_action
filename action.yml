@@ -466,13 +466,16 @@ runs:
                 # Get the current date in YYYYMMDD format
                 DATE=$(date +%Y%m%d)
                 # Append the date to the zip filename
-                zip Anykernel3-flasher-$DATE.zip AnyKernel3/*
+                cd AnyKernel3
+                zip -r9 Anykernel3-flasher-$DATE.zip * -x README Anykernel3-flasher-$DATE.zip
                 echo "Done zipping up"
                 echo "Current directory"
                 pwd
                 if [ -f "Anykernel3-flasher-$DATE.zip" ]; then
                     echo "Anykernel 3 flash zip exists";
                 fi
+                mv Anykernel3-flasher-$DATE.zip ${{ github.workspace }}/
+                cd ${{ github.workspace }}/
                 echo "Current directory"
                 pwd
                 echo "contents of /home"
@@ -517,7 +520,7 @@ runs:
       with:
         name: Last CI build kernel
         tag_name: last-ci
-        files: Anykernel3-flasher-*.zip
+        files: ${{ github.workspace }}/Anykernel3-flasher-*.zip
         make_latest: true
         body: |
             config: ${{ inputs.config }}
