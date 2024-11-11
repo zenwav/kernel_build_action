@@ -279,6 +279,10 @@ runs:
              echo "::endgroup::"
          fi
 
+         echo "Home directory"
+         echo "$HOME"
+         echo "Contents of home"
+         ls -l "$HOME"
          cd kernel/${{ inputs.kernel-dir }}
          function version_gt() { test "$(echo -e "$1\n$2" | sort -V | tail -n1)" == "$1"; }
          VERSION=$(grep -E '^VERSION = ' Makefile | awk '{print $3}')
@@ -411,6 +415,8 @@ runs:
 
          unset USE_CCACHE CLANG_TRIPLE CROSS_COMPILE_ARM32 CROSS_COMPILE CLANG_PATH HOMES SUBLEVEL KVER COMMAND SWAP_FILE SUBLEVEL PATCHLEVEL VERSION
 
+        echo "Current directory after compiling kernel"
+        pwd
          if [ ${{ inputs.anykernel3 }} = false ]; then
             echo "::group:: Preparing to Upload boot.img"
             mkdir split
@@ -449,7 +455,8 @@ runs:
                     echo "No URL provided for cloning."
                 fi
             fi
-
+            echo "Kernel root directory"
+            ls
             if [ -f out/arch/${{ inputs.arch }}/boot/Image.gz-dtb ]; then
                 cp out/arch/${{ inputs.arch }}/boot/Image.gz-dtb AnyKernel3/ -rv
             fi
@@ -473,6 +480,9 @@ runs:
                     ls -l "../../../build"
                 else
                       echo "Directory does not exist.";
+                fi
+                if [ -d "Anykernel3-flasher-$DATE.zip" ]; then
+                    echo "Anykernel 3 flash zip exists";
                 fi
                 cp Anykernel3-flasher-$DATE.zip ../../../build -rv
                 ls -l "../../../build"
