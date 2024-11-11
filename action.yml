@@ -318,11 +318,11 @@ runs:
             fi
             echo "::endgroup::"
          fi
-         
+
          echo "::group:: Initializing susfs4ksu"
          KERNEL_ROOT=${PWD}
          if [ -f build_alioth.sh ]; then
-	          KERNEL_ROOT=${PWD}  
+            KERNEL_ROOT=${PWD}  
          fi
          echo "Clong susfs4ksu"
          git clone --branch 1.4.2-kernel-4.19 https://gitlab.com/simonpunk/susfs4ksu.git
