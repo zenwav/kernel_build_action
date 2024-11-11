@@ -460,12 +460,16 @@ runs:
                 cp AnyKernel3 ../../build -r -v
             else
                 # Get the current date in YYYYMMDD format
+                pwd
                 DATE=$(date +%Y%m%d)
                 # Append the date to the zip filename
                 cd AnyKernel3
+                pwd
                 zip -r9 Anykernel3-flasher-$DATE.zip * -x README Anykernel3-flasher-$DATE.zip
                 cd ..
-                mv Anykernel3/Anykernel3-flasher-$DATE.zip ../../build -v
+                pwd
+                mv Anykernel3/Anykernel3-flasher-$DATE.zip ../../build/ -v
+                pwd
             fi
             echo "::endgroup::"
          fi
