@@ -318,6 +318,42 @@ runs:
             fi
             echo "::endgroup::"
          fi
+         
+         echo "::group:: Initializing susfs4ksu"
+         KERNEL_ROOT=${PWD}
+         if [ -f build_alioth.sh ]; then
+	          KERNEL_ROOT=${PWD}  
+         fi
+         echo "Clong susfs4ksu"
+         git clone --branch 1.4.2-kernel-4.19 https://gitlab.com/simonpunk/susfs4ksu.git
+         cd susfs4ksu
+         echo "Step 2"
+         wget https://github.com/averagePedestrian/kernel_build_action/raw/susfs/susfs4ksu/10_enable_susfs_for_ksu.patch
+         mv 10_enable_susfs_for_ksu.patch $KERNEL_ROOT/KernelSU
+         echo "Step 3"
+         cp ./kernel_patches/KernelSU/kernel/sucompat.h $KERNEL_ROOT/KernelSU/kernel/
+         echo "Step 4"
+         wget https://github.com/averagePedestrian/kernel_build_action/raw/susfs/susfs4ksu/50_add_susfs_in_kernel-4.19.patch
+         mv 50_add_susfs_in_kernel-4.19.patch $KERNEL_ROOT/
+         echo "Step 5"
+         cp ./kernel_patches/fs/susfs.c $KERNEL_ROOT/fs/
+         echo "Step 6"
+         cp ./kernel_patches/include/linux/susfs.h $KERNEL_ROOT/include/linux/
+         echo "Step 7"
+         cp ./kernel_patches/fs/sus_su.c $KERNEL_ROOT/fs/
+         echo "Step 8"
+         cp ./kernel_patches/include/linux/sus_su.h $KERNEL_ROOT/include/linux/
+         echo "Step 9"
+         cd $KERNEL_ROOT
+         wget https://github.com/averagePedestrian/kernel_build_action/raw/susfs/susfs4ksu/dcache.patch
+         patch -p1 < dcache.patch
+         echo "Step 10"
+         cd $KERNEL_ROOT/KernelSU
+         patch -p1 < 10_enable_susfs_for_ksu.patch
+         echo "Step 11"
+         cd $KERNEL_ROOT 
+         patch -p1 < 50_add_susfs_in_kernel-4.19.patch
+         echo "::endgroup::"
 
          if [ -f scripts/dtc/libfdt/mkdtboimg.py ]; then
             if grep python2 scripts/Makefile.lib >/dev/null; then
