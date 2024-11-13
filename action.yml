@@ -371,7 +371,7 @@ runs:
 
          echo "::group:: Building Kernel with selected cross compiler"
          mkdir out -p -v
-         COMMAND="make -j$(nproc --all) ${{ inputs.config }} ARCH=${{ inputs.arch }} all ${{ inputs.extra-cmd }} O=out"
+         COMMAND="make -j$(nproc --all) vendor/${{ inputs.config }} ARCH=${{ inputs.arch }} all ${{ inputs.extra-cmd }} O=out"
          if [ -d $HOME/clang ]; then
               COMMAND+=" PATH=$HOME/clang/bin:$PATH"
          elif [ ${{ inputs.android-ndk }} = true ]; then
