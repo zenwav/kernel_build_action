@@ -190,12 +190,8 @@ runs:
          if [ ${{ inputs.aosp-clang }} = false ] && [ ${{ inputs.android-ndk }} = false ]; then
              echo "::group:: Downloading 3rd clang"
              export OTHER_CLANG_URL=${{ inputs.other-clang-url }}
+             mkdir $HOME/clang -p -v
              wget "$OTHER_CLANG_URL"
-             echo "Contents of $PWD"
-             ls -lh
-             mkdir clang
-             echo "Created directory clang"
-             ls -lh
              tar -I zstd -xf neutron-clang-10032024.tar.zst -C $HOME/clang/
              if [ ! -d $HOME/clang/bin/ ]; then
                  mv $HOME/clang/*/* $HOME/clang/
