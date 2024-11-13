@@ -444,9 +444,12 @@ runs:
             fi
             if [ -f out/arch/${{ inputs.arch }}/boot/Image.gz-dtb ]; then
                 cp out/arch/${{ inputs.arch }}/boot/Image.gz-dtb AnyKernel3/ -rv
+            elif [ -f out/arch/${{ inputs.arch }}/boot/Image.gz ]; then
+                cp out/arch/${{ inputs.arch }}/boot/Image.gz AnyKernel3/ -rv
             fi
 
             test -f out/arch/${{ inputs.arch }}/boot/dtbo.img && cp -v out/arch/${{ inputs.arch }}/boot/dtbo.img AnyKernel3/
+            test -f out/arch/${{ inputs.arch }}/boot/dtb && cp -v out/arch/${{ inputs.arch }}/boot/dtb AnyKernel3/
 
             rm -rf -v AnyKernel3/.git* AnyKernel3/README.md
             if [ ${{ inputs.release }} = false ]; then
@@ -454,7 +457,7 @@ runs:
             else
                 # Get the current date in YYYYMMDD format
                 DATE=$(date +%Y%m%d)
-                FINAL_ZIP_VALUE=$(grep FINAL_KERNEL_ZIP= build.sh | cut -d= -f2 | sed 's/\.zip$//')
+                FINAL_ZIP_VALUE=n0kernel
                 ZIP_FILE_NAME="$FINAL_ZIP_VALUE-$DATE.zip" 
                 echo "ZIP_FILE_NAME=$ZIP_FILE_NAME" >> $GITHUB_ENV
                 cd AnyKernel3
