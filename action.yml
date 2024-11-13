@@ -172,7 +172,7 @@ runs:
 
          echo "::group:: Installing Building Depend Packages"
          "$SU" apt-get update
-         "$SU" apt-get install --no-install-recommends -y binutils git make bc bison openssl curl zip kmod cpio flex libelf-dev libssl-dev libtfm-dev libc6-dev device-tree-compiler ca-certificates python3 xz-utils libc6-dev aria2 build-essential ccache
+         "$SU" apt-get install --no-install-recommends -y binutils git make bc bison openssl curl zip kmod cpio flex libelf-dev libssl-dev libtfm-dev libc6-dev device-tree-compiler ca-certificates python3 xz-utils libc6-dev aria2 build-essential ccache sudo apt install zstd
          aria2c -q https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh && NONINTERACTIVE=1 bash ./uninstall.sh -f -q
          echo "::endgroup::"
          export SWAP_FILE=$(swapon --show=NAME | tail -n 1)
@@ -190,17 +190,9 @@ runs:
          if [ ${{ inputs.aosp-clang }} = false ] && [ ${{ inputs.android-ndk }} = false ]; then
              echo "::group:: Downloading 3rd clang"
              export OTHER_CLANG_URL=${{ inputs.other-clang-url }}
-             if [[ "$OTHER_CLANG_URL" == *'.tar.gz' ]]; then
-                 aria2c -o clang.tar.gz "$OTHER_CLANG_URL"
-                 mkdir clang
-                 tar -C $HOME/clang/ -zxvf clang.tar.gz
-             elif [[ "$OTHER_CLANG_URL" == *'.zip' ]]; then
-                 aria2c -o clang.zip "$OTHER_CLANG_URL"
-                 mkdir clang
-                 unzip clang.zip -d $HOME/clang/
-             else
-                 git clone "$OTHER_CLANG_URL" $HOME/clang --depth=${{ inputs.depth }} -b ${{ inputs.other-clang-branch }}
-             fi
+             wget "$OTHER_CLANG_URL"
+             mkdir clang
+             tar -I zstd -xf neutron-clang-10032024.tar.zst -C $HOME/clang/
              if [ ! -d $HOME/clang/bin/ ]; then
                  mv $HOME/clang/*/* $HOME/clang/
              fi
