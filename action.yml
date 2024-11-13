@@ -536,7 +536,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.access-token }}
       with:
         name: Last CI build kernel
-        tag_name: last-ci-${{ github.sha }}
+        tag_name: susfs-${{ github.run_id }}
         files: ${{ github.workspace }}/${{ env.ZIP_FILE_NAME }}
         make_latest: true
         body: |
