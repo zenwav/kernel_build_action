@@ -442,14 +442,14 @@ runs:
                     echo "No URL provided for cloning."
                 fi
             fi
-            if [ -f out/arch/${{ inputs.arch }}/boot/Image.gz-dtb ]; then
-                cp out/arch/${{ inputs.arch }}/boot/Image.gz-dtb AnyKernel3/ -rv
-            elif [ -f out/arch/${{ inputs.arch }}/boot/Image.gz ]; then
+            if [ -f out/arch/${{ inputs.arch }}/boot/Image.gz ]; then
                 cp out/arch/${{ inputs.arch }}/boot/Image.gz AnyKernel3/ -rv
+                test -f out/arch/${{ inputs.arch }}/boot/dtbo.img && cp -v out/arch/${{ inputs.arch }}/boot/dtbo.img AnyKernel3/
+                test -f out/arch/${{ inputs.arch }}/boot/dtb.img && mv -v out/arch/${{ inputs.arch }}/boot/dtb.img AnyKernel3/dtb
+            elif [ -f out/arch/${{ inputs.arch }}/boot/Image.gz-dtb ]; then
+                cp out/arch/${{ inputs.arch }}/boot/Image.gz-dtb AnyKernel3/ -rv
+                test -f out/arch/${{ inputs.arch }}/boot/dtbo.img && cp -v out/arch/${{ inputs.arch }}/boot/dtbo.img AnyKernel3/
             fi
-
-            test -f out/arch/${{ inputs.arch }}/boot/dtbo.img && cp -v out/arch/${{ inputs.arch }}/boot/dtbo.img AnyKernel3/
-            test -f out/arch/${{ inputs.arch }}/boot/dtb && cp -v out/arch/${{ inputs.arch }}/boot/dtb AnyKernel3/
 
             rm -rf -v AnyKernel3/.git* AnyKernel3/README.md
             if [ ${{ inputs.release }} = false ]; then
