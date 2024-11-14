@@ -370,7 +370,9 @@ runs:
 
          echo "::group:: Building Kernel with selected cross compiler"
          mkdir out -p -v
-         COMMAND="make -j$(nproc --all) vendor/${{ inputs.config }} ARCH=${{ inputs.arch }} ${{ inputs.extra-cmd }} CROSS_COMPILE=$HOME/gcc-64/bin/aarch64-linux-android- CLANG_TRIPLE=aarch64-linux-gnu- O=out"
+         export CROSS_COMPILE_ARM32=$HOME/gcc-32/bin/arm-linux-androideabi-
+         export CROSS_COMPILE=$HOME/gcc-64/bin/aarch64-linux-android-
+         COMMAND="make -j$(nproc --all) vendor/${{ inputs.config }} ARCH=${{ inputs.arch }} ${{ inputs.extra-cmd }} CLANG_TRIPLE=aarch64-linux-gnu- O=out"
          if [ -d $HOME/clang ]; then
               COMMAND+=" PATH=$HOME/clang/bin:$PATH"
          elif [ ${{ inputs.android-ndk }} = true ]; then
