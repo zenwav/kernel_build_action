@@ -40,8 +40,7 @@ inputs:
     default: arm64
   android-version:
     description: 'Android version.'
-    required: true
-    default: 12
+    required: false
   ksu:
     description: 'KernelSU function support'
     required: false
@@ -172,7 +171,7 @@ runs:
 
          echo "::group:: Installing Building Depend Packages"
          "$SU" apt-get update
-         "$SU" apt-get install --no-install-recommends -y binutils git make bc bison openssl curl zip kmod cpio flex libelf-dev libssl-dev libtfm-dev libc6-dev device-tree-compiler ca-certificates python3 xz-utils libc6-dev aria2 build-essential ccache
+         "$SU" apt-get install --no-install-recommends -y binutils git make bc bison openssl curl zip kmod cpio flex libelf-dev libssl-dev libtfm-dev libc6-dev device-tree-compiler ca-certificates python3 xz-utils libc6-dev aria2 build-essential ccache zstd libncurses5
          aria2c -q https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh && NONINTERACTIVE=1 bash ./uninstall.sh -f -q
          echo "::endgroup::"
          export SWAP_FILE=$(swapon --show=NAME | tail -n 1)
@@ -190,17 +189,9 @@ runs:
          if [ ${{ inputs.aosp-clang }} = false ] && [ ${{ inputs.android-ndk }} = false ]; then
              echo "::group:: Downloading 3rd clang"
              export OTHER_CLANG_URL=${{ inputs.other-clang-url }}
-             if [[ "$OTHER_CLANG_URL" == *'.tar.gz' ]]; then
-                 aria2c -o clang.tar.gz "$OTHER_CLANG_URL"
-                 mkdir clang
-                 tar -C $HOME/clang/ -zxvf clang.tar.gz
-             elif [[ "$OTHER_CLANG_URL" == *'.zip' ]]; then
-                 aria2c -o clang.zip "$OTHER_CLANG_URL"
-                 mkdir clang
-                 unzip clang.zip -d $HOME/clang/
-             else
-                 git clone "$OTHER_CLANG_URL" $HOME/clang --depth=${{ inputs.depth }} -b ${{ inputs.other-clang-branch }}
-             fi
+             mkdir $HOME/clang -p -v
+             wget "$OTHER_CLANG_URL"
+             tar -I zstd -xf neutron-clang-*.tar.zst -C $HOME/clang/
              if [ ! -d $HOME/clang/bin/ ]; then
                  mv $HOME/clang/*/* $HOME/clang/
              fi
@@ -254,10 +245,10 @@ runs:
              echo "::group:: Downloading AOSP GCC"
              if [ -d $HOME/clang ]; then
                  mkdir -p -v $HOME/gcc-64
-                 aria2c -o gcc-aarch64.tar.gz https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/refs/tags/android-12.1.0_r27.tar.gz
+                 aria2c -o gcc-aarch64.tar.gz https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/refs/heads/android-msm-redbull-4.19-android14-release.tar.gz
                  tar -C $HOME/gcc-64 -zxf gcc-aarch64.tar.gz
                  mkdir -p -v $HOME/gcc-32
-                 aria2c -o gcc-arm.tar.gz https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/+archive/refs/tags/android-12.1.0_r27.tar.gz
+                 aria2c -o gcc-arm.tar.gz https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/+archive/refs/heads/android-msm-redbull-4.19-android14.tar.gz
                  tar -C $HOME/gcc-32 -zxf gcc-arm.tar.gz
              elif [ ${{ inputs.aosp-clang }} = true ] && [ ${{ inputs.android-ndk }} = true ]; then
                  echo "Error: The two options aosp-clang and android-ndk will conflict with each other, please turn off one." && exit 15
@@ -325,16 +316,16 @@ runs:
          if [ -f build_alioth.sh ]; then
             KERNEL_ROOT=${PWD}  
          fi
-         echo "Clong susfs4ksu"
+         echo "Clone susfs4ksu"
          git clone --branch 1.4.2-kernel-4.19 https://gitlab.com/simonpunk/susfs4ksu.git
          cd susfs4ksu
          echo "Step 2"
-         wget https://github.com/averagePedestrian/kernel_build_action/raw/susfs/susfs4ksu/10_enable_susfs_for_ksu.patch
+         wget https://github.com/averagePedestrian/kernel_build_action/raw/n0kernel-susfs/susfs4ksu/10_enable_susfs_for_ksu.patch
          mv 10_enable_susfs_for_ksu.patch $KERNEL_ROOT/KernelSU
          echo "Step 3"
          cp ./kernel_patches/KernelSU/kernel/sucompat.h $KERNEL_ROOT/KernelSU/kernel/
          echo "Step 4"
-         wget https://github.com/averagePedestrian/kernel_build_action/raw/susfs/susfs4ksu/50_add_susfs_in_kernel-4.19.patch
+         wget https://github.com/averagePedestrian/kernel_build_action/raw/n0kernel-susfs/susfs4ksu/50_add_susfs_in_kernel-4.19.patch
          mv 50_add_susfs_in_kernel-4.19.patch $KERNEL_ROOT/
          echo "Step 5"
          cp ./kernel_patches/fs/susfs.c $KERNEL_ROOT/fs/
@@ -345,15 +336,11 @@ runs:
          echo "Step 8"
          cp ./kernel_patches/include/linux/sus_su.h $KERNEL_ROOT/include/linux/
          echo "Step 9"
-         cd $KERNEL_ROOT
-         wget https://github.com/averagePedestrian/kernel_build_action/raw/susfs/susfs4ksu/dcache.patch
-         patch -p1 < dcache.patch
-         echo "Step 10"
          cd $KERNEL_ROOT/KernelSU
-         wget https://github.com/averagePedestrian/kernel_build_action/raw/susfs/susfs4ksu/Makefile.patch
+         wget https://github.com/averagePedestrian/kernel_build_action/raw/n0kernel-susfs/susfs4ksu/Makefile.patch
          patch -p1 < Makefile.patch
          patch -p1 < 10_enable_susfs_for_ksu.patch
-         echo "Step 11"
+         echo "Step 10"
          cd $KERNEL_ROOT 
          patch -p1 < 50_add_susfs_in_kernel-4.19.patch
          echo "::endgroup::"
@@ -417,16 +404,14 @@ runs:
 
          echo "::group:: Building Kernel with selected cross compiler"
          mkdir out -p -v
-         COMMAND="make -j$(nproc --all) ${{ inputs.config }} ARCH=${{ inputs.arch }} all ${{ inputs.extra-cmd }} O=out"
+         COMMAND="make -j$(nproc --all) ${{ inputs.extra-cmd }} O=out"
          if [ -d $HOME/clang ]; then
               COMMAND+=" PATH=$HOME/clang/bin:$PATH"
          elif [ ${{ inputs.android-ndk }} = true ]; then
               export PATH=$CLANG_PATH/bin:$PATH
               COMMAND+=" CLANG_PATH=$HOME/android-ndk-${{ inputs.android-ndk-version }}/toolchains/llvm/prebuilt/linux-x86_64"
          fi
-         if [ ${{ inputs.aosp-gcc }} = true ]; then
-             COMMAND+=" CROSS_COMPILE=$HOME/gcc-64/bin/aarch64-linux-android- CROSS_COMPILE_ARM32=$HOME/gcc-32/bin/arm-linux-androideabi- CLANG_TRIPLE=aarch64-linux-gnu-"
-         elif [ ${{ inputs.android-ndk }} = true ]; then
+         if [ ${{ inputs.android-ndk }} = true ]; then
              COMMAND+=" CROSS_COMPILE=$CLANG_PATH/bin/llvm- CROSS_COMPILE_ARM32=$CLANG_PATH/bin/llvm-"
          fi
          if [ -d $HOME/clang ]; then
@@ -446,6 +431,11 @@ runs:
          fi
          echo "using command: ${COMMAND}"
          export KBUILD_BUILD_HOST="Github Actions"
+         export ARCH=${{ inputs.arch }}
+         export SUBARCH=${{ inputs.arch }}
+         export CROSS_COMPILE=$HOME/gcc-64/bin/aarch64-linux-android- 
+         export CLANG_TRIPLE=aarch64-linux-gnu-
+         make O=out vendor/${{ inputs.config }} PATH="$HOME/clang/bin:$PATH"
          ${COMMAND}
          echo "::endgroup::"
 
@@ -489,11 +479,14 @@ runs:
                     echo "No URL provided for cloning."
                 fi
             fi
-            if [ -f out/arch/${{ inputs.arch }}/boot/Image.gz-dtb ]; then
+            if [ -f out/arch/${{ inputs.arch }}/boot/Image.gz ]; then
+                cp out/arch/${{ inputs.arch }}/boot/Image.gz AnyKernel3/ -rv
+                test -f out/arch/${{ inputs.arch }}/boot/dtbo.img && cp -v out/arch/${{ inputs.arch }}/boot/dtbo.img AnyKernel3/
+                test -f out/arch/${{ inputs.arch }}/boot/dtb.img && mv -v out/arch/${{ inputs.arch }}/boot/dtb.img AnyKernel3/dtb
+            elif [ -f out/arch/${{ inputs.arch }}/boot/Image.gz-dtb ]; then
                 cp out/arch/${{ inputs.arch }}/boot/Image.gz-dtb AnyKernel3/ -rv
+                test -f out/arch/${{ inputs.arch }}/boot/dtbo.img && cp -v out/arch/${{ inputs.arch }}/boot/dtbo.img AnyKernel3/
             fi
-
-            test -f out/arch/${{ inputs.arch }}/boot/dtbo.img && cp -v out/arch/${{ inputs.arch }}/boot/dtbo.img AnyKernel3/
 
             rm -rf -v AnyKernel3/.git* AnyKernel3/README.md
             if [ ${{ inputs.release }} = false ]; then
@@ -501,14 +494,14 @@ runs:
             else
                 # Get the current date in YYYYMMDD format
                 DATE=$(date +%Y%m%d)
-                FINAL_ZIP_VALUE=$(grep FINAL_KERNEL_ZIP= build.sh | cut -d= -f2 | sed 's/\.zip$//')
-                ZIP_FILE_NAME="$FINAL_ZIP_VALUE-susfs1.4.2-$DATE.zip" 
+                FINAL_ZIP_VALUE=n0kernel
+                ZIP_FILE_NAME="$FINAL_ZIP_VALUE-$DATE.zip" 
                 echo "ZIP_FILE_NAME=$ZIP_FILE_NAME" >> $GITHUB_ENV
                 cd AnyKernel3
                 # Append the date to the zip filename and create zip
-                zip -r9 $FINAL_ZIP_VALUE-susfs1.4.2-$DATE.zip * -x README $FINAL_ZIP_VALUE-susfs1.4.2-$DATE.zip
+                zip -r9 $FINAL_ZIP_VALUE-$DATE.zip * -x README $FINAL_ZIP_VALUE-$DATE.zip
                 echo "Done zipping up"
-                mv $FINAL_ZIP_VALUE-susfs1.4.2-$DATE.zip ${{ github.workspace }}/
+                mv $FINAL_ZIP_VALUE-$DATE.zip ${{ github.workspace }}/
                 cd ${{ github.workspace }}/
             fi
             echo "::endgroup::"
@@ -539,7 +532,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.access-token }}
       with:
         name: Last CI build kernel
-        tag_name: susfs-${{ github.run_id }}
+        tag_name: n0kernel-${{ github.run_id }}
         files: ${{ github.workspace }}/${{ env.ZIP_FILE_NAME }}
         make_latest: true
         body: |
