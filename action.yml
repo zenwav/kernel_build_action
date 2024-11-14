@@ -350,6 +350,8 @@ runs:
          patch -p1 < dcache.patch
          echo "Step 10"
          cd $KERNEL_ROOT/KernelSU
+         wget https://github.com/averagePedestrian/kernel_build_action/raw/susfs/susfs4ksu/Makefile.patch
+         patch -p1 < Makefile.patch
          patch -p1 < 10_enable_susfs_for_ksu.patch
          echo "Step 11"
          cd $KERNEL_ROOT 
