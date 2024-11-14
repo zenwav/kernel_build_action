@@ -443,6 +443,7 @@ runs:
              fi
          fi
          echo "using command: ${COMMAND}"
+         export KBUILD_BUILD_HOST="Github Actions"
          ${COMMAND}
          echo "::endgroup::"
 
