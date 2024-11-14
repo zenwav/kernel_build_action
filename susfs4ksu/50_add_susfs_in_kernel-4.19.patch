@@ -29,22 +29,6 @@ index 98363cb3d4b1..76fb2379801c 100644
  		spin_lock(&dentry->d_lock);
  		if (dentry->d_parent != parent)
  			goto next;
-diff --git a/fs/devpts/inode.c b/fs/devpts/inode.c
-index 553a3f3300ae..87c4ec5ccb13 100644
---- a/fs/devpts/inode.c
-+++ b/fs/devpts/inode.c
-@@ -599,6 +599,11 @@ struct dentry *devpts_pty_new(struct pts_fs_info *fsi, int index, void *priv)
- 	return dentry;
- }
- 
-+#ifdef CONFIG_KSU_SUSFS_SUS_SU
-+extern bool ksu_devpts_hook;
-+extern int ksu_handle_devpts(struct inode*);
-+#endif
-+
- /**
-  * devpts_get_priv -- get private data for a slave
-  * @pts_inode: inode of the slave
 diff --git a/fs/inode.c b/fs/inode.c
 index 067febdbc426..66aa4f753d33 100644
 --- a/fs/inode.c
