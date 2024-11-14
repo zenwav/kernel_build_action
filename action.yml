@@ -396,6 +396,7 @@ runs:
              fi
          fi
          echo "using command: ${COMMAND}"
+         export KBUILD_BUILD_HOST="Github Actions"
          export ARCH=${{ inputs.arch }}
          export SUBARCH=${{ inputs.arch }}
          export CROSS_COMPILE=$HOME/gcc-64/bin/aarch64-linux-android- 
