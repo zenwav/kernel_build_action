@@ -377,9 +377,7 @@ runs:
               export PATH=$CLANG_PATH/bin:$PATH
               COMMAND+=" CLANG_PATH=$HOME/android-ndk-${{ inputs.android-ndk-version }}/toolchains/llvm/prebuilt/linux-x86_64"
          fi
-         if [ ${{ inputs.aosp-gcc }} = true ]; then
-             COMMAND+=" CROSS_COMPILE=$HOME/gcc-64/bin/aarch64-linux-android- CROSS_COMPILE_ARM32=$HOME/gcc-32/bin/arm-linux-androideabi- CLANG_TRIPLE=aarch64-linux-gnu-"
-         elif [ ${{ inputs.android-ndk }} = true ]; then
+         if [ ${{ inputs.android-ndk }} = true ]; then
              COMMAND+=" CROSS_COMPILE=$CLANG_PATH/bin/llvm- CROSS_COMPILE_ARM32=$CLANG_PATH/bin/llvm-"
          fi
          if [ -d $HOME/clang ]; then
@@ -400,6 +398,8 @@ runs:
          echo "using command: ${COMMAND}"
          export ARCH=${{ inputs.arch }}
          export SUBARCH=${{ inputs.arch }}
+         export CROSS_COMPILE=$HOME/gcc-64/bin/aarch64-linux-android- 
+         export CLANG_TRIPLE=aarch64-linux-gnu-
          make O=out vendor/${{ inputs.config }} PATH="$HOME/clang/bin:$PATH"
          ${COMMAND}
          echo "::endgroup::"
