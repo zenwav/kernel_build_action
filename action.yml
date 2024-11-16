@@ -191,7 +191,8 @@ runs:
          fi
 
          if [ ${{ inputs.aosp-clang }} = false ] && [ ${{ inputs.android-ndk }} = false ]; then
-             if [ ${{ inputs.neutron-clang }} = true ];
+
+             if [ ${{ inputs.neutron-clang }} = true ] ];
                 echo "::group:: Downloading Neutron clang"
                 mkdir $HOME/clang -p -v
                 cd clang
@@ -200,12 +201,18 @@ runs:
                 ./antman -S=05012024
                 ./antman --patch=glibc
                 cd ..
-                echo "::endgroup::"
-              fi
+             else
+                echo "::group:: Downloading 3rd clang"
+                export OTHER_CLANG_URL=${{ inputs.other-clang-url }}
+                mkdir $HOME/clang -p -v
+                wget "$OTHER_CLANG_URL"
+                tar -I zstd -xf neutron-clang-*.tar.zst -C $HOME/clang/
+             fi
              if [ ! -d $HOME/clang/bin/ ]; then
                  mv $HOME/clang/*/* $HOME/clang/
              fi
-        fi
+         fi
+         echo "::endgroup::"
 
          if [ ${{ inputs.android-ndk }} = true ]; then
              echo "::group:: Downloading Android NDK"
