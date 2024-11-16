@@ -416,6 +416,7 @@ runs:
              fi
          fi
          echo "using command: ${COMMAND}"
+         export KBUILD_BUILD_USER="nehal"
          export KBUILD_BUILD_HOST="Github Actions"
          export ARCH=${{ inputs.arch }}
          make O=out vendor/${{ inputs.config }} PATH="$HOME/clang/bin:$PATH"
