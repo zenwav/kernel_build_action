@@ -195,15 +195,12 @@ runs:
              if [ ${{ inputs.neutron-clang }} = true ]; then
                 echo "::group:: Downloading Neutron clang"
                 mkdir $HOME/clang -p -v
-                echo "Current directory"
-                pwd
-                echo "Github workspace ${{ github.workspace }}"
                 cd $HOME/clang
                 curl -LO "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman"
                 chmod +x antman
                 ./antman -S=05012024
                 ./antman --patch=glibc
-                cd ..
+                cd ${{ github.workspace }}/
              else
                 echo "::group:: Downloading 3rd clang"
                 export OTHER_CLANG_URL=${{ inputs.other-clang-url }}
