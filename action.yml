@@ -96,6 +96,10 @@ inputs:
     description: 'Use clang from aosp project.'
     required: false
     default: false
+  neutron-clang:
+    description: 'Use Neutron clang'
+    required: false
+    default: false
   aosp-clang-version:
     required: false
     default: "r383902"
@@ -171,7 +175,7 @@ runs:
 
          echo "::group:: Installing Building Depend Packages"
          "$SU" apt-get update
-         "$SU" apt-get install --no-install-recommends -y binutils git make bc bison openssl curl zip kmod cpio flex libelf-dev libssl-dev libtfm-dev libc6-dev device-tree-compiler ca-certificates python3 xz-utils libc6-dev aria2 build-essential ccache zstd libncurses5
+         "$SU" apt-get install --no-install-recommends -y libarchive-tools binutils git make bc bison openssl curl zip kmod cpio flex libelf-dev libssl-dev libtfm-dev libc6-dev device-tree-compiler ca-certificates python3 xz-utils libc6-dev aria2 build-essential ccache zstd libncurses5
          aria2c -q https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh && NONINTERACTIVE=1 bash ./uninstall.sh -f -q
          echo "::endgroup::"
          export SWAP_FILE=$(swapon --show=NAME | tail -n 1)
@@ -187,14 +191,26 @@ runs:
          fi
 
          if [ ${{ inputs.aosp-clang }} = false ] && [ ${{ inputs.android-ndk }} = false ]; then
-             echo "::group:: Downloading 3rd clang"
-             export OTHER_CLANG_URL=${{ inputs.other-clang-url }}
-             mkdir $HOME/clang -p -v
-             wget "$OTHER_CLANG_URL"
-             tar -I zstd -xf neutron-clang-*.tar.zst -C $HOME/clang/
-             if [ ! -d $HOME/clang/bin/ ]; then
+
+             if [ ${{ inputs.neutron-clang }} = true ] ];
+                echo "::group:: Downloading Neutron clang"
+                mkdir $HOME/clang -p -v
+                cd clang
+                curl -LO "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman"
+                chmod +x antman
+                ./antman -S=05012024
+                ./antman --patch=glibc
+                cd ..
+            elif
+                echo "::group:: Downloading 3rd clang"
+                export OTHER_CLANG_URL=${{ inputs.other-clang-url }}
+                mkdir $HOME/clang -p -v
+                wget "$OTHER_CLANG_URL"
+                tar -I zstd -xf neutron-clang-*.tar.zst -C $HOME/clang/
+            fi
+            if [ ! -d $HOME/clang/bin/ ]; then
                  mv $HOME/clang/*/* $HOME/clang/
-             fi
+            fi
          fi
          echo "::endgroup::"
 
@@ -377,8 +393,12 @@ runs:
               export PATH=$CLANG_PATH/bin:$PATH
               COMMAND+=" CLANG_PATH=$HOME/android-ndk-${{ inputs.android-ndk-version }}/toolchains/llvm/prebuilt/linux-x86_64"
          fi
-         if [ ${{ inputs.android-ndk }} = true ]; then
+         if [ ${{ inputs.aosp-gcc }} = true ]; then
+             COMMAND+=" CROSS_COMPILE=$HOME/gcc-64/bin/aarch64-linux-android- CROSS_COMPILE_ARM32=$HOME/gcc-32/bin/arm-linux-androideabi- CLANG_TRIPLE=aarch64-linux-gnu-"
+         elif [ ${{ inputs.android-ndk }} = true ]; then
              COMMAND+=" CROSS_COMPILE=$CLANG_PATH/bin/llvm- CROSS_COMPILE_ARM32=$CLANG_PATH/bin/llvm-"
+         else
+             COMMAND+=" CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_COMPAT=arm-linux-gnueabi-"
          fi
          if [ -d $HOME/clang ]; then
              if [ ${{ inputs.ccache }} = true ]; then
@@ -398,14 +418,11 @@ runs:
          echo "using command: ${COMMAND}"
          export KBUILD_BUILD_HOST="Github Actions"
          export ARCH=${{ inputs.arch }}
-         export SUBARCH=${{ inputs.arch }}
-         export CROSS_COMPILE=$HOME/gcc-64/bin/aarch64-linux-android- 
-         export CLANG_TRIPLE=aarch64-linux-gnu-
          make O=out vendor/${{ inputs.config }} PATH="$HOME/clang/bin:$PATH"
          ${COMMAND}
          echo "::endgroup::"
 
-         unset USE_CCACHE CLANG_TRIPLE CROSS_COMPILE_ARM32 CROSS_COMPILE CLANG_PATH HOMES SUBLEVEL KVER COMMAND SWAP_FILE SUBLEVEL PATCHLEVEL VERSION
+         unset USE_CCACHE CLANG_TRIPLE CROSS_COMPILE_ARM32 CROSS_COMPILE CLANG_PATH HOMES SUBLEVEL KVER COMMAND SWAP_FILE SUBLEVEL PATCHLEVEL VERSION CROSS_COMPILE_COMPAT
 
          if [ ${{ inputs.anykernel3 }} = false ]; then
             echo "::group:: Preparing to Upload boot.img"
