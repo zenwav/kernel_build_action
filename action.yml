@@ -192,7 +192,7 @@ runs:
 
          if [ ${{ inputs.aosp-clang }} = false ] && [ ${{ inputs.android-ndk }} = false ]; then
 
-             if [ ${{ inputs.neutron-clang }} = true ] ];
+             if [ ${{ inputs.neutron-clang }} = true ];
                 echo "::group:: Downloading Neutron clang"
                 mkdir $HOME/clang -p -v
                 cd clang
