@@ -201,16 +201,16 @@ runs:
                 ./antman -S=05012024
                 ./antman --patch=glibc
                 cd ..
-            elif
+             elif
                 echo "::group:: Downloading 3rd clang"
                 export OTHER_CLANG_URL=${{ inputs.other-clang-url }}
                 mkdir $HOME/clang -p -v
                 wget "$OTHER_CLANG_URL"
                 tar -I zstd -xf neutron-clang-*.tar.zst -C $HOME/clang/
-            fi
-            if [ ! -d $HOME/clang/bin/ ]; then
+             fi
+             if [ ! -d $HOME/clang/bin/ ]; then
                  mv $HOME/clang/*/* $HOME/clang/
-            fi
+             fi
          fi
          echo "::endgroup::"
 
