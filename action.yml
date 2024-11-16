@@ -201,7 +201,7 @@ runs:
                 ./antman -S=05012024
                 ./antman --patch=glibc
                 cd ..
-             elif
+             else
                 echo "::group:: Downloading 3rd clang"
                 export OTHER_CLANG_URL=${{ inputs.other-clang-url }}
                 mkdir $HOME/clang -p -v
