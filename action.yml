@@ -297,7 +297,7 @@ runs:
                 echo "KernelSU has been initialized,skipped."
             else
                 if [ ${{ inputs.ksu-other }} = true ]; then
-                    curl -LSs "https://gist.githubusercontent.com/averagePedestrian/453b70ad72e51e669a7b03ac799c32ca/raw/962b9181f3ebe5e9f52470b1c6c37e5542cd7518/setup.sh" | bash -s legacy
+                    curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next
                 else
                     echo "Kernel version: $VERSION.$PATCHLEVEL.$SUBLEVEL"
                     if [ -f nongki.txt ]; then
