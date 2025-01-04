@@ -501,7 +501,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.access-token }}
       with:
         name: Last CI build kernel
-        tag_name: legacy-ksu-${{ github.run_id }}
+        tag_name: ksu-next-${{ github.run_id }}
         files: ${{ github.workspace }}/${{ env.ZIP_FILE_NAME }}
         make_latest: true
         body: |
